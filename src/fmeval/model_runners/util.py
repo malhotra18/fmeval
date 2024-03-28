@@ -40,7 +40,7 @@ def get_sagemaker_session(
     :return: The new session
     """
     boto_session = get_boto_session()
-    boto_config = botocore.client.Config(retries={"mode": boto_retry_mode, "max_attempts": retry_attempts})
+    boto_config = botocore.client.Config(retries={"mode": boto_retry_mode, "max_attempts": retry_attempts}, user_agent="fmeval/0.3.0")
     sagemaker_service_endpoint_url = os.getenv(SAGEMAKER_SERVICE_ENDPOINT_URL)
     sagemaker_runtime_endpoint_url = os.getenv(SAGEMAKER_RUNTIME_ENDPOINT_URL)
     sagemaker_client = boto_session.client(
@@ -53,12 +53,30 @@ def get_sagemaker_session(
         endpoint_url=sagemaker_runtime_endpoint_url,
         config=boto_config,
     )
+    # prepend_fmeval_user_agent(sagemaker_client)
+    # prepend_fmeval_user_agent(sagemaker_runtime_client)
     sagemaker_session = sagemaker.session.Session(
         boto_session=boto_session,
         sagemaker_client=sagemaker_client,
         sagemaker_runtime_client=sagemaker_runtime_client,
     )
+    print("still in get_sagemaker_session")
+    print(sagemaker_session.sagemaker_client._client_config.__dict__)
     return sagemaker_session
+
+
+def prepend_fmeval_user_agent(client):
+    prefix = "fmeval/{}".format("0.3.0")
+    print("will be appending this prefix in user agent: ", prefix)
+
+    if client._client_config.user_agent is None:
+        print("if mein aaya")
+        client._client_config.user_agent = prefix
+    else:
+        print("else mei aaya")
+        client._client_config.user_agent = "{} {}".format(prefix, client._client_config.user_agent)
+
+    print(client._client_config.user_agent)
 
 
 def get_bedrock_runtime_client(

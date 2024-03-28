@@ -12,11 +12,13 @@ from fmeval.data_loaders.data_sources import DataSource, LocalDataFile, S3DataFi
 from fmeval.data_loaders.json_data_loader import JsonDataLoaderConfig, JsonDataLoader
 from fmeval.data_loaders.json_parser import JsonParser
 from fmeval.data_loaders.data_config import DataConfig
+from fmeval.model_runners.util import prepend_fmeval_user_agent
 from fmeval.util import get_num_actors
 from fmeval.exceptions import EvalAlgorithmClientError, EvalAlgorithmInternalError
 from fmeval.perf_util import timed_block
 
 client = boto3.client("s3")
+prepend_fmeval_user_agent(client)
 logger = logging.getLogger(__name__)
 
 

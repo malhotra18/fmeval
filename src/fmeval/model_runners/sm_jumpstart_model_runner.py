@@ -61,11 +61,14 @@ class JumpStartModelRunner(ModelRunner):
         self._output = output
         self._log_probability = log_probability
         self._component_name = component_name
+        print("Initialising model runner")
         sagemaker_session = get_sagemaker_session()
         util.require(
             is_endpoint_in_service(sagemaker_session, self._endpoint_name),
             f"Endpoint {self._endpoint_name} is not in service",
         )
+        print("before initialising predictor")
+        print(sagemaker_session.sagemaker_client._client_config.__dict__)
         predictor = sagemaker.predictor.retrieve_default(
             endpoint_name=self._endpoint_name,
             model_id=self._model_id,
@@ -74,6 +77,8 @@ class JumpStartModelRunner(ModelRunner):
         )
         util.require(predictor.accept == MIME_TYPE_JSON, f"Model accept type `{predictor.accept}` is not supported.")
         self._predictor = predictor
+        print("final")
+        print(sagemaker_session.sagemaker_client._client_config.__dict__)
 
     def predict(self, prompt: str) -> Tuple[Optional[str], Optional[float]]:
         """
